@@ -4,10 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
+autopep8 = "*"
 
 [packages]
 requests = "==2.22.0"
 Scrapy = "==1.7.2"
+pyyaml = "*"
 
 [requires]
 python_version = "3.7"
