@@ -1,5 +1,5 @@
 # b3-news-sentiment-analyzer
-An application to scrap and storage the main B3's news, analysing its sentiments to help people with trade in the stock market
+An application to scrap and storage the main [B3](http://www.b3.com.br/en_us/)'s news, analysing its sentiments to help people trading in the stock market
 
 # Setup you environment
 
