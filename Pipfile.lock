@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9cc22be16f72e7f234ca3ef1f8a5e335988522d59d7d334bae1f987ed5404bfe"
+            "sha256": "60d3dace90e651874385b3e952bf559e9a16587d414b5f30a55b43f73b2a3c57"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -183,6 +183,13 @@
             ],
             "version": "==1.5.1"
         },
+        "peewee": {
+            "hashes": [
+                "sha256:bc879e1ffb7f7684f90d9dd236c77b5042118d079f94764f35e3806948829ac8"
+            ],
+            "index": "pypi",
+            "version": "==3.9.6"
+        },
         "pyasn1": {
             "hashes": [
                 "sha256:da2420fe13a9452d8ae97a0e478adde1dee153b11ba832a95b223a2ba01c10f7",
@@ -216,6 +223,14 @@
                 "sha256:8ffaa0a53da57e89de14ced7185ac746227a8894dbd5a3c718bf05ddbd1d56cd"
             ],
             "version": "==1.9.0"
+        },
+        "pymysql": {
+            "hashes": [
+                "sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a",
+                "sha256:d8c059dcd81dedb85a9f034d5e22dcb4442c0b201908bede99e306d65ea7c8e7"
+            ],
+            "index": "pypi",
+            "version": "==0.9.3"
         },
         "pyopenssl": {
             "hashes": [

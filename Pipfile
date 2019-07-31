@@ -12,6 +12,8 @@ requests = "==2.22.0"
 Scrapy = "==1.7.2"
 pyyaml = "*"
 beautifulsoup4 = "*"
+peewee = "*"
+pymysql = "*"
 
 [requires]
 python_version = "3.7"
