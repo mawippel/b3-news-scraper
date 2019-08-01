@@ -4,23 +4,29 @@ import yaml
 # Load the config file into memory
 config = yaml.safe_load(open("config.yml"))
 
-myDB = pw.MySQLDatabase("b3news", host="b3news.chhyfcmj1pi4.us-east-2.rds.amazonaws.com", port=3306, user=config['DB_USER'], passwd=config['DB_PASS'])
+db = pw.MySQLDatabase("b3news", host="b3news.chhyfcmj1pi4.us-east-2.rds.amazonaws.com",
+                        port=3306, user=config['DB_USER'], passwd=config['DB_PASS'])
+
 
 class MySQLModel(pw.Model):
-    """A base model that will use our MySQL database"""
+    # A base model that will use our MySQL database
     class Meta:
-        database = myDB
+        database = db
 
-class Person(MySQLModel):
+
+class News(MySQLModel):
     id = pw.IdentityField()
-    firstname = pw.CharField()
-    surname = pw.CharField()
+    title = pw.CharField()
+    site = pw.CharField()
+    score = pw.CharField()
+    lastUpdated = pw.DateTimeField()
 
 
-# when you're ready to start querying, remember to connect
-# myDB.connect()
+def insertNews(news):
+    db.connect()
+    news.save()
+    db.close()
+
 
 if __name__ == "__main__":
-    myDB.connect()
-    print(Person.select().get())
-    myDB.close()
+    pass
