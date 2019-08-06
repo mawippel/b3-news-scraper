@@ -1,4 +1,7 @@
-﻿# vscode
+﻿# config
+config.yml
+
+# vscode
 .vscode
 
 # Byte-compiled / optimized / DLL files
