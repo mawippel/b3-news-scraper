@@ -10,4 +10,6 @@ Create a [Meaning Cloud](https://www.meaningcloud.com/developer/sentiment-analys
 Create a `config.yml` with the following layout:
 ```
 API_KEY: <your_api_key_here>
+DB_USER: <your_db_user_here>
+DB_PASS: <your_db_pass_here>
 ```
