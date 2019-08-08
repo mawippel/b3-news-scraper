@@ -13,14 +13,11 @@ def scrap():
     soup = BeautifulSoup(page.text, 'html.parser')
 
     htmlTitles = soup.find_all(class_='title-box title-box-medium')
-    # print(htmlTitles)
     for item in htmlTitles:
         hrefs.append(item['href'])
         titles.append(item.getText())
-        # print(item)
-        # print(item.getText())
 
-    newsPath = 'https://www.infomoney.com.br/minhas-financas/consumo/noticia/8737584/varejo-devera-faturar-r-56-bilhoes-com-dia-dos-pais-diz-cnc'
+    newsPath = 'https://www.infomoney.com.br/mercados/politica/noticia/8780578/maior-aliado-em-processo-de-privatizacoes-nao-e-guedes-e-bolsonaro-diz-mattar'
     page = requests.get(newsPath)
     soup = BeautifulSoup(page.text, 'lxml')
     fullContent = soup.find(class_='article__content')
@@ -32,7 +29,8 @@ def scrap():
 
     fullContent = fullContent.find_all('p', recursive=False)
     for i in range(0, len(fullContent) - 1):
-        paragraphs.append(fullContent[i].getText())
+        if "<script>" not in fullContent[i].getText():
+            paragraphs.append(fullContent[i].getText())
     
     print(paragraphs)
 
