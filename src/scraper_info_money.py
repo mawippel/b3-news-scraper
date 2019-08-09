@@ -33,6 +33,7 @@ def get_news(hrefs, titles):
 
 
 def get_news_content(news_path, paragraphs):
+    """ Returns the paragraphs of the article """
     page = requests.get(news_path)
     soup = BeautifulSoup(page.text, 'lxml')
     fullContent = soup.find(class_='article__content')
