@@ -13,8 +13,7 @@ def scrap():
 
     get_news(hrefs, titles)
     # for title in titles:
-    #     news_path = BASE_PATH + title
-    #     get_news_content(news_path, paragraphs)
+    #     get_news_content(title, paragraphs)
     news_path = 'https://exame.abril.com.br/mercados/acao-do-mercado-livre-dispara-em-ny-apos-balanco-forte/'
     get_news_content(news_path, paragraphs)
     print(paragraphs)
