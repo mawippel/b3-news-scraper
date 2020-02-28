@@ -14,7 +14,7 @@ def scrap():
     get_news(hrefs, titles)
     # for title in titles:
     #     get_news_content(title, paragraphs)
-    news_path = 'https://exame.abril.com.br/mercados/acao-do-mercado-livre-dispara-em-ny-apos-balanco-forte/'
+    news_path = 'https://exame.abril.com.br/mercados/a-bolsa-despencou-e-hora-de-comprar/'
     get_news_content(news_path, paragraphs)
     print(paragraphs)
 
