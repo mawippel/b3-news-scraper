@@ -12,6 +12,7 @@ def scrap():
     paragraphs = []
 
     get_news(hrefs, titles)
+    print(hrefs)
     # for title in titles:
     #     get_news_content(title, paragraphs)
     news_path = 'https://exame.abril.com.br/mercados/a-bolsa-despencou-e-hora-de-comprar/'

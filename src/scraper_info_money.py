@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 BASE_PATH = 'https://www.infomoney.com.br'
-NEWS_PATH = BASE_PATH + '/mercados/ultimas-noticias'
+NEWS_PATH = BASE_PATH + '/mercados'
 
 
 def scrap():
@@ -17,7 +18,7 @@ def scrap():
     #     news_path = BASE_PATH + title
     #     get_news_content(news_path, paragraphs)
     news_path = BASE_PATH + '/negocios/coronavirus-faz-empresas-perderem-bilhoes-em-valor-de-mercado-por-reducao-de-previsao-de-lucro/'
-    get_news_content(news_path, paragraphs)
+    # get_news_content(news_path, paragraphs)
     print(paragraphs)
 
 
@@ -26,10 +27,11 @@ def get_news(hrefs, titles):
     page = requests.get(NEWS_PATH)
     soup = BeautifulSoup(page.text, 'html.parser')
 
-    htmlTitles = soup.find_all(class_='title-box title-box-medium')
+    htmlTitles = soup.findAll('div', {"id":re.compile("^post-")})
+    print(htmlTitles)
     for item in htmlTitles:
-        hrefs.append(item['href'])
-        titles.append(item.getText())
+        txt_href = item.find('a')['href']
+        txt_title = item.find('a').get('title')
 
 
 def get_news_content(news_path, paragraphs):
