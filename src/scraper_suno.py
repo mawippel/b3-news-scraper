@@ -6,12 +6,14 @@ NEWS_PATH = 'https://www.sunoresearch.com.br/noticias/mercado/'
 
 def scrap():
     print('Starting Suno Scraper...')
+    paragraphs = []
     hrefs, titles = get_news()
     print(hrefs, titles)
-    # for href in hrefs:
-    #     get_news_content(href, paragraphs)
-    paragraphs = get_news_content('https://www.sunoresearch.com.br/noticias/ibovespa-queda-05022020/')
-    print(paragraphs)
+    for href in hrefs:
+        get_news_content(href, paragraphs)
+        print(paragraphs)
+    # paragraphs = get_news_content('https://www.sunoresearch.com.br/noticias/ibovespa-queda-05022020/')
+    # print(paragraphs)
 
 
 def get_news():
@@ -31,9 +33,8 @@ def get_news():
     return hrefs, titles
 
 
-def get_news_content(news_path):
+def get_news_content(news_path, paragraphs):
     """ Returns the paragraphs of the article """
-    paragraphs = []
     page = requests.get(news_path)
     soup = BeautifulSoup(page.text, 'lxml')
     fullContent = soup.find('div', itemprop="articleBody")
@@ -42,7 +43,6 @@ def get_news_content(news_path):
     for paragraph in article_paragraphs:
         text = paragraph.getText()
         paragraphs.append(text)
-    return paragraphs
 
 
 if __name__ == "__main__":

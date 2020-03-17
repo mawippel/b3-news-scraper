@@ -15,12 +15,12 @@ def scrap():
 
     get_news(hrefs, titles)
     print(hrefs, titles)
-    # for title in titles:
-    #     news_path = BASE_PATH + title
-    #     get_news_content(news_path, paragraphs)
-    news_path = BASE_PATH + '/negocios/coronavirus-faz-empresas-perderem-bilhoes-em-valor-de-mercado-por-reducao-de-previsao-de-lucro/'
-    get_news_content(news_path, paragraphs)
-    print(paragraphs)
+    for href in hrefs:
+        get_news_content(href, paragraphs)
+        print(paragraphs)
+    # news_path = BASE_PATH + '/negocios/coronavirus-faz-empresas-perderem-bilhoes-em-valor-de-mercado-por-reducao-de-previsao-de-lucro/'
+    # get_news_content(news_path, paragraphs)
+    # print(paragraphs)
 
 
 def get_news(hrefs, titles):
