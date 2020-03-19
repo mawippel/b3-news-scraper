@@ -1,25 +1,27 @@
-import peewee as pw
+from peewee import *
 import yaml
 
 # Load the config file into memory
 config = yaml.safe_load(open("config.yml"))
 
-db = pw.MySQLDatabase("b3news", host="b3news.chhyfcmj1pi4.us-east-2.rds.amazonaws.com",
-                        port=3306, user=config['DB_USER'], passwd=config['DB_PASS'])
+db = PostgresqlDatabase(
+    'postgres',
+    user=config['DB_USER'],
+    password=config['DB_PASS'],
+    host='b3-news-db.postgres.database.azure.com')
 
-
-class MySQLModel(pw.Model):
+class MySQLModel(Model):
     # A base model that will use our MySQL database
     class Meta:
         database = db
 
 
 class News(MySQLModel):
-    id = pw.IdentityField()
-    title = pw.CharField()
-    site = pw.CharField()
-    score = pw.CharField()
-    lastUpdated = pw.DateTimeField()
+    id = IdentityField()
+    title = CharField()
+    site = CharField()
+    score = CharField()
+    lastUpdated = DateTimeField()
 
 
 def insertNews(news):
@@ -29,4 +31,4 @@ def insertNews(news):
 
 
 if __name__ == "__main__":
-    pass
+    insertNews(News())
