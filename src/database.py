@@ -18,10 +18,10 @@ class Database():
         self.connection = self.engine.connect()
         print("DB Instance created")
 
-    def saveData(self, news):
+    def save_data(self, news):
         self.connection.execute(f"""INSERT INTO news(id, title, href, created_at) 
                                     VALUES('{news.id}', '{news.title}', '{news.href}', '{news.created_at}')""")
 
 if __name__ == "__main__":
     db = Database()
-    db.saveData(News('título de teste', 'https://aefaef.com.br'))
+    db.save_data(News('título de teste', 'https://aefaef.com.br'))
