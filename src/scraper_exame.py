@@ -8,6 +8,7 @@ NEWS_PATH = 'https://exame.abril.com.br/noticias-sobre/acoes/'
 
 def scrap():
     print('Starting Exame Scraper...')
+    db = Database()
 
     news = []
     hrefs = []
@@ -21,7 +22,6 @@ def scrap():
         news.append(News(titles[i], hrefs[i], paragraphs))
         paragraphs = []
 
-    db = Database()
     for el in news:
         db.save(el)
     print('All news were saved.')
@@ -51,14 +51,14 @@ def get_news_content(news_path, paragraphs):
     for without_paragraph_text in fullContent:
         text = str(without_paragraph_text).strip()
         # Ignore tags inside the text, in case it happens
-        if is_not_tag(text):
+        if should_add(text):
             paragraphs.append(sanitize_paragraph(text))
     fullContent = fullContent.find_all('p', recursive=False)
 
     # Get the texts that are inside paragraphs
     for i in range(0, len(fullContent) - 1):
         text = fullContent[i].getText()
-        if is_not_script_tag(text):
+        if should_add(text):
             paragraphs.append(sanitize_paragraph(text))
 
 
@@ -67,8 +67,16 @@ def sanitize_paragraph(paragraph):
     return paragraph
 
 
+def should_add(text):
+    return is_not_tag(text) and is_not_script_tag(text) and not is_useless_paragraph(text)
+
+
 def is_not_script_tag(text):
     return text and "<script>" not in text
+
+
+def is_useless_paragraph(paragraph):
+    return paragraph.strip() == '' or paragraph.lower() == 'adiciona categoria materia'
 
 
 def is_not_tag(text):

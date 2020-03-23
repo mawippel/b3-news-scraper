@@ -10,6 +10,7 @@ NEWS_PATH = BASE_PATH + '/mercados'
 
 def scrap():
     print('Starting Info Money Scraper...')
+    db = Database()
 
     news = []
     hrefs = []
@@ -23,7 +24,6 @@ def scrap():
         news.append(News(titles[i], hrefs[i], paragraphs))
         paragraphs = []
 
-    db = Database()
     for el in news:
         db.save(el)
     print('All news were saved.')
@@ -52,14 +52,25 @@ def get_news_content(news_path, paragraphs):
         article_paragraphs = item.find_all('p')
         for paragraph in article_paragraphs:
             text = paragraph.getText()
-            paragraphs.append(sanitize_paragraph(text))
+            if should_add(text):
+                paragraphs.append(sanitize_paragraph(text))
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')
     return paragraph
 
+
+def should_add(text):
+    return is_not_tag(text) and is_not_script_tag(text) and not is_useless_paragraph(text)
+
+
 def is_not_script_tag(text):
     return text and "<script>" not in text
+
+
+def is_useless_paragraph(paragraph):
+    return paragraph.strip() == '' or paragraph.lower() == 'adiciona categoria materia'
+
 
 def is_not_tag(text):
     return text and text[:1] != '<'
