@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+from model.news import News
+from database import Database
 
 BASE_PATH = 'https://www.infomoney.com.br'
 NEWS_PATH = BASE_PATH + '/mercados'
@@ -9,18 +11,22 @@ NEWS_PATH = BASE_PATH + '/mercados'
 def scrap():
     print('Starting Info Money Scraper...')
 
+    news = []
     hrefs = []
     titles = []
     paragraphs = []
 
     get_news(hrefs, titles)
     print(hrefs, titles)
-    for href in hrefs:
-        get_news_content(href, paragraphs)
-        print(paragraphs)
-    # news_path = BASE_PATH + '/negocios/coronavirus-faz-empresas-perderem-bilhoes-em-valor-de-mercado-por-reducao-de-previsao-de-lucro/'
-    # get_news_content(news_path, paragraphs)
-    # print(paragraphs)
+    for i in range(0, len(hrefs)):
+        get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs))
+        paragraphs = []
+
+    db = Database()
+    for el in news:
+        db.save(el)
+    print('All news were saved.')
 
 
 def get_news(hrefs, titles):
@@ -46,7 +52,11 @@ def get_news_content(news_path, paragraphs):
         article_paragraphs = item.find_all('p')
         for paragraph in article_paragraphs:
             text = paragraph.getText()
-            paragraphs.append(text)
+            paragraphs.append(sanitize_paragraph(text))
+
+def sanitize_paragraph(paragraph):
+    paragraph = paragraph.replace(u'\xa0', u' ')
+    return paragraph
 
 def is_not_script_tag(text):
     return text and "<script>" not in text

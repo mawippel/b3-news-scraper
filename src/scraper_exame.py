@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+from model.news import News
+from database import Database
 
 NEWS_PATH = 'https://exame.abril.com.br/noticias-sobre/acoes/'
 
@@ -7,17 +9,22 @@ NEWS_PATH = 'https://exame.abril.com.br/noticias-sobre/acoes/'
 def scrap():
     print('Starting Exame Scraper...')
 
+    news = []
     hrefs = []
     titles = []
     paragraphs = []
 
     get_news(hrefs, titles)
     print(hrefs, titles)
-    for href in hrefs:
-        get_news_content(href, paragraphs)
-        print(paragraphs)
-    # news_path = 'https://exame.abril.com.br/mercados/a-bolsa-despencou-e-hora-de-comprar/'
-    # get_news_content(news_path, paragraphs)
+    for i in range(0, len(hrefs)):
+        get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs))
+        paragraphs = []
+
+    db = Database()
+    for el in news:
+        db.save(el)
+    print('All news were saved.')
 
 
 def get_news(hrefs, titles):
@@ -45,14 +52,19 @@ def get_news_content(news_path, paragraphs):
         text = str(without_paragraph_text).strip()
         # Ignore tags inside the text, in case it happens
         if is_not_tag(text):
-            paragraphs.append(text)
+            paragraphs.append(sanitize_paragraph(text))
     fullContent = fullContent.find_all('p', recursive=False)
 
     # Get the texts that are inside paragraphs
     for i in range(0, len(fullContent) - 1):
         text = fullContent[i].getText()
         if is_not_script_tag(text):
-            paragraphs.append(text)
+            paragraphs.append(sanitize_paragraph(text))
+
+
+def sanitize_paragraph(paragraph):
+    paragraph = paragraph.replace(u'\xa0', u' ')
+    return paragraph
 
 
 def is_not_script_tag(text):

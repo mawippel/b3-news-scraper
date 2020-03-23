@@ -1,19 +1,27 @@
 import requests
 from bs4 import BeautifulSoup
+from model.news import News
+from database import Database
 
 NEWS_PATH = 'https://www.sunoresearch.com.br/noticias/mercado/'
 
 
 def scrap():
     print('Starting Suno Scraper...')
+
+    news = []
     paragraphs = []
     hrefs, titles = get_news()
     print(hrefs, titles)
-    for href in hrefs:
-        get_news_content(href, paragraphs)
-        print(paragraphs)
-    # paragraphs = get_news_content('https://www.sunoresearch.com.br/noticias/ibovespa-queda-05022020/')
-    # print(paragraphs)
+    for i in range(0, len(hrefs)):
+        get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs))
+        paragraphs = []
+
+    db = Database()
+    for el in news:
+        db.save(el)
+    print('All news were saved.')
 
 
 def get_news():
@@ -42,7 +50,11 @@ def get_news_content(news_path, paragraphs):
     article_paragraphs = fullContent.find_all('p')
     for paragraph in article_paragraphs:
         text = paragraph.getText()
-        paragraphs.append(text)
+        paragraphs.append(sanitize_paragraph(text))
+
+def sanitize_paragraph(paragraph):
+    paragraph = paragraph.replace(u'\xa0', u' ')
+    return paragraph
 
 
 if __name__ == "__main__":
