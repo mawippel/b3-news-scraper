@@ -21,6 +21,10 @@ class Database():
         self.connection = self.engine.connect()
         print("DB Instance created")
 
+    def get_links(self):
+        fetchQuery = self.connection.execute(f"SELECT href FROM news")
+        return list(map(lambda x: x.href, fetchQuery.fetchall()))
+
     def save(self, news):
         self.save_news(news)
         self.save_paragraphs(news)
@@ -37,5 +41,6 @@ class Database():
 
 if __name__ == "__main__":
     db = Database()
-    db.save(News('título de teste', 'https://aefaef.com.br',
-                 ['paragrafo 1', 'paragrafo 2', 'paragrafo 3']))
+    # db.save(News('título de teste', 'https://aefaef.com.br',
+    #              ['paragrafo 1', 'paragrafo 2', 'paragrafo 3']))
+    db.get_links()

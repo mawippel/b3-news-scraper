@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from model.news import News
 from database import Database
+import re
 
 NEWS_PATH = 'https://exame.abril.com.br/noticias-sobre/acoes/'
 
@@ -15,7 +16,9 @@ def scrap():
     titles = []
     paragraphs = []
 
-    get_news(hrefs, titles)
+    fetched_links = db.get_links()
+
+    get_news(hrefs, titles, fetched_links)
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
         get_news_content(hrefs[i], paragraphs)
@@ -27,24 +30,27 @@ def scrap():
     print('All news were saved.')
 
 
-def get_news(hrefs, titles):
+def get_news(hrefs, titles, fetched_links):
     """ Retrieves the latest news and parse its title/href """
     page = requests.get(NEWS_PATH)
-    soup = BeautifulSoup(page.text, 'lxml')
+    soup = BeautifulSoup(page.text, 'html.parser')
 
-    htmlTitles = soup.find_all(class_='list-item')
+    htmlTitles = soup.findAll('li', {"id":re.compile("^post-")})
     for item in htmlTitles:
         txt_href = item.find('a')['href']
         txt_title = item.find('a').get('title')
         if txt_href and txt_href[:1] != '/':
-            hrefs.append(txt_href)
-            titles.append(txt_title)
+            if is_not_fetched(fetched_links, txt_href):
+                hrefs.append(txt_href)
+                titles.append(txt_title)
 
+def is_not_fetched(fetched_links, href):
+    return href not in fetched_links
 
 def get_news_content(news_path, paragraphs):
     """ Returns the paragraphs of the article """
     page = requests.get(news_path)
-    soup = BeautifulSoup(page.text, 'lxml')
+    soup = BeautifulSoup(page.text, 'html.parser')
     fullContent = soup.find(class_='article-content')
 
     # Get the texts that are outside paragraphs

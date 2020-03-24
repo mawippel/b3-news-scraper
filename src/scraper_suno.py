@@ -12,7 +12,11 @@ def scrap():
 
     news = []
     paragraphs = []
-    hrefs, titles = get_news()
+
+    fetched_links = db.get_links()
+
+    hrefs, titles = get_news(fetched_links)
+
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
         get_news_content(hrefs[i], paragraphs)
@@ -24,7 +28,7 @@ def scrap():
     print('All news were saved.')
 
 
-def get_news():
+def get_news(fetched_links):
     hrefs = []
     titles = []
 
@@ -36,15 +40,16 @@ def get_news():
         title = item.find('h3', {'class': 'post__title'})
         txt_href = title.find('a')['href']
         txt_title = title.find('a').text
-        hrefs.append(txt_href)
-        titles.append(txt_title)
+        if is_not_fetched(fetched_links, txt_href):
+            hrefs.append(txt_href)
+            titles.append(txt_title)
     return hrefs, titles
 
 
 def get_news_content(news_path, paragraphs):
     """ Returns the paragraphs of the article """
     page = requests.get(news_path)
-    soup = BeautifulSoup(page.text, 'lxml')
+    soup = BeautifulSoup(page.text, 'html.parser')
     fullContent = soup.find('div', itemprop="articleBody")
     # Get the texts that are outside paragraphs
     article_paragraphs = fullContent.find_all('p')
@@ -53,6 +58,8 @@ def get_news_content(news_path, paragraphs):
         if should_add(text):
             paragraphs.append(sanitize_paragraph(text))
 
+def is_not_fetched(fetched_links, href):
+    return href not in fetched_links
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')
