@@ -71,6 +71,7 @@ def split_paragraph(text):
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')
+    paragraph = paragraph.strip()
     return paragraph
 
 
