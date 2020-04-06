@@ -56,10 +56,18 @@ def get_news_content(news_path, paragraphs):
     for paragraph in article_paragraphs:
         text = paragraph.getText()
         if should_add(text):
-            paragraphs.append(sanitize_paragraph(text))
+            text = sanitize_paragraph(text)
+            paragraphs.extend(split_paragraph(text))
+
+
+def split_paragraph(text):
+    texts = text.split('.')
+    return [x for x in texts if x]
+
 
 def is_not_fetched(fetched_links, href):
     return href not in fetched_links
+
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')

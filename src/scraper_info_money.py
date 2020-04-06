@@ -36,7 +36,7 @@ def get_news(hrefs, titles, fetched_links):
     page = requests.get(NEWS_PATH)
     soup = BeautifulSoup(page.text, 'html.parser')
 
-    htmlTitles = soup.findAll('div', {"id":re.compile("^post-")})
+    htmlTitles = soup.findAll('div', {"id": re.compile("^post-")})
     for item in htmlTitles:
         txt_href = item.find('a')['href']
         txt_title = item.find('a').get('title')
@@ -44,21 +44,30 @@ def get_news(hrefs, titles, fetched_links):
             hrefs.append(txt_href)
             titles.append(txt_title)
 
+
 def is_not_fetched(fetched_links, href):
     return href not in fetched_links
+
 
 def get_news_content(news_path, paragraphs):
     """ Returns the paragraphs of the article """
     page = requests.get(news_path)
     soup = BeautifulSoup(page.text, 'html.parser')
-    fullContent = soup.findAll('article', {"id":re.compile("^post-")})
+    fullContent = soup.findAll('article', {"id": re.compile("^post-")})
     # Get the texts that are outside paragraphs
     for item in fullContent:
         article_paragraphs = item.find_all('p')
         for paragraph in article_paragraphs:
             text = paragraph.getText()
             if should_add(text):
-                paragraphs.append(sanitize_paragraph(text))
+                text = sanitize_paragraph(text)
+                paragraphs.extend(split_paragraph(text))
+
+
+def split_paragraph(text):
+    texts = text.split('.')
+    return [x for x in texts if x]
+
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')
