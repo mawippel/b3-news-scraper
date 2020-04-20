@@ -52,7 +52,7 @@ def get_news_content(news_path, paragraphs):
     soup = BeautifulSoup(page.text, 'html.parser')
     fullContent = soup.find('div', itemprop="articleBody")
     # Get the texts that are outside paragraphs
-    article_paragraphs = fullContent.find_all('p')
+    article_paragraphs = fullContent.find_all('p', recursive=False)
     for paragraph in article_paragraphs:
         text = paragraph.getText()
         if should_add(text):
