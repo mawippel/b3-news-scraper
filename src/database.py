@@ -30,8 +30,8 @@ class Database():
         self.save_paragraphs(news)
 
     def save_news(self, news):
-        self.connection.execute(sqlalchemy.text(f"""INSERT INTO news(id, title, href, created_at) 
-                                    VALUES('{news.id}', '{news.title}', '{news.href}', '{news.created_at}')"""))
+        self.connection.execute(sqlalchemy.text(f"""INSERT INTO news(id, title, href, website_name, website_photo, created_at) 
+                                    VALUES('{news.id}', '{news.title}', '{news.href}', '{news.website_name}', '{news.website_photo}', '{news.created_at}')"""))
 
     def save_paragraphs(self, news):
         for paragraph in news.paragraphs:

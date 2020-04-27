@@ -23,7 +23,7 @@ def scrap():
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
         get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs))
+        news.append(News(titles[i], hrefs[i], paragraphs, 'InfoMoney', 'https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/5c/df/a9/5cdfa9b4-913f-8b4d-a99d-1c6f2662061e/AppIcon-0-1x_U007emarketing-0-0-85-220-0-4.png/1200x630wa.png'))
         paragraphs = []
 
     for el in news:
