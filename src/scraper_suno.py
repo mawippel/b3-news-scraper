@@ -20,7 +20,7 @@ def scrap():
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
         get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs, 'Suno Notícias', 'https://storage.googleapis.com/wp-noticias/2018/09/0863da8c-57044fc6-logosunoblack-4.png'))
+        news.append(News(titles[i], hrefs[i], paragraphs, 'Suno Notícias', 'https://www.sunoresearch.com.br/wp-content/uploads/2019/12/suno-research.jpg'))
         paragraphs = []
 
     for el in news:
