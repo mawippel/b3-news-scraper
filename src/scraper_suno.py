@@ -1,4 +1,6 @@
 import requests
+import pytz
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from model.news import News
 from database import Database
@@ -19,8 +21,9 @@ def scrap():
 
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
-        get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs, 'Suno Notícias', 'https://www.sunoresearch.com.br/wp-content/uploads/2019/12/suno-research.jpg'))
+        publish_date = get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs, 'Suno Notícias',
+                         'https://www.sunoresearch.com.br/wp-content/uploads/2019/12/suno-research.jpg', publish_date))
         paragraphs = []
 
     for el in news:
@@ -58,6 +61,16 @@ def get_news_content(news_path, paragraphs):
         if should_add(text):
             text = sanitize_paragraph(text)
             paragraphs.extend(split_paragraph(text))
+
+    # get publish time
+    articleDate = soup.find(class_='time')
+    strippedDate = articleDate.get('datetime').strip()
+    datetime_object = datetime.strptime(
+        strippedDate, '%Y-%m-%dT%H:%M:%S%z')
+    datetime_object += timedelta(hours=3)
+    tz = pytz.timezone('America/Sao_Paulo')
+    datetime_object = datetime_object.replace(tzinfo=pytz.utc).astimezone(tz)
+    return datetime_object
 
 
 def split_paragraph(text):

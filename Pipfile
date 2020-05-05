@@ -17,6 +17,7 @@ pymysql = "*"
 schedule = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.7"

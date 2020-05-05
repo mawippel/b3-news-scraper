@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 import re
 from model.news import News
@@ -22,8 +23,8 @@ def scrap():
     get_news(hrefs, titles, fetched_links)
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
-        get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs, 'InfoMoney', 'https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/5c/df/a9/5cdfa9b4-913f-8b4d-a99d-1c6f2662061e/AppIcon-0-1x_U007emarketing-0-0-85-220-0-4.png/1200x630wa.png'))
+        publish_date = get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs, 'InfoMoney', 'https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/5c/df/a9/5cdfa9b4-913f-8b4d-a99d-1c6f2662061e/AppIcon-0-1x_U007emarketing-0-0-85-220-0-4.png/1200x630wa.png', publish_date))
         paragraphs = []
 
     for el in news:
@@ -63,6 +64,14 @@ def get_news_content(news_path, paragraphs):
                 text = sanitize_paragraph(text)
                 paragraphs.extend(split_paragraph(text))
 
+    # get publish time
+    articleDate = soup.find(class_='entry-date')
+    strippedDate = articleDate.get('datetime').strip()
+    datetime_object = datetime.strptime(
+        strippedDate, '%Y-%m-%dT%H:%M:%S%z')
+
+    return datetime_object
+
 
 def split_paragraph(text):
     texts = text.split('.')
@@ -71,6 +80,7 @@ def split_paragraph(text):
 
 def sanitize_paragraph(paragraph):
     paragraph = paragraph.replace(u'\xa0', u' ')
+    paragraph = paragraph.replace('"', '')
     paragraph = paragraph.strip()
     return paragraph
 

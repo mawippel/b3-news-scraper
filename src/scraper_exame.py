@@ -1,8 +1,13 @@
+import locale
+import pytz
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 from model.news import News
 from database import Database
 import re
+
+locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
 NEWS_PATH = 'https://exame.abril.com.br/noticias-sobre/acoes/'
 
@@ -21,8 +26,9 @@ def scrap():
     get_news(hrefs, titles, fetched_links)
     print(hrefs, titles)
     for i in range(0, len(hrefs)):
-        get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs, 'EXAME Notícias', 'https://abrilexame.files.wordpress.com/2019/08/logo-exame.png?w=150'))
+        publish_date = get_news_content(hrefs[i], paragraphs)
+        news.append(News(titles[i], hrefs[i], paragraphs, 'EXAME Notícias',
+                         'https://abrilexame.files.wordpress.com/2019/08/logo-exame.png?w=150', publish_date))
         paragraphs = []
 
     for el in news:
@@ -66,6 +72,22 @@ def get_news_content(news_path, paragraphs):
         if should_add(text):
             text = sanitize_paragraph(text)
             paragraphs.extend(split_paragraph(text))
+
+    # Get publish date
+    articleDate = soup.find(class_='article-date')
+    date = articleDate.find('span').getText()
+
+    auxDate = date.replace("Publicado em", "")
+    auxDate = auxDate.strip()
+
+    try:
+        datetime_object = datetime.strptime(
+            auxDate, '%d %B %Y, %Hh%M')
+    except Exception as e:
+        datetime_object = datetime.strptime(
+            auxDate, '%d %b %Y, %Hh%M')
+    tzbr = pytz.timezone('America/Sao_Paulo').localize(datetime_object).astimezone(pytz.UTC)
+    return tzbr
 
 
 def split_paragraph(text):
