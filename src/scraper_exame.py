@@ -77,15 +77,20 @@ def get_news_content(news_path, paragraphs):
     articleDate = soup.find(class_='article-date')
     date = articleDate.find('span').getText()
 
-    auxDate = date.replace("Publicado em", "")
+    auxDate = date.replace("Publicado em:", "")
+
+    # casos em que possui '- alterado em'
+    auxDate = auxDate.split('-')[0]
+
     auxDate = auxDate.strip()
+
 
     try:
         datetime_object = datetime.strptime(
-            auxDate, '%d %B %Y, %Hh%M')
+            auxDate, '%d/%m/%Y às %Hh%M')
     except Exception as e:
         datetime_object = datetime.strptime(
-            auxDate, '%d %b %Y, %Hh%M')
+            auxDate, '%d %b %Y às %Hh%M')
     tzbr = pytz.timezone('America/Sao_Paulo').localize(datetime_object).astimezone(pytz.UTC)
     return tzbr
 
