@@ -4,30 +4,28 @@ import yaml
 import uuid
 from datetime import datetime
 
-# Load the config file into memory
 config = yaml.safe_load(open("config.yml"))
 
 
 class Database():
     user = config['DB_USER']
     password = config['DB_PASS']
-    hostname = 'b3-news-db.postgres.database.azure.com'
-    database_name = 'postgres'
+    hostname = config['DB_HOST']
+    database_name = config['DATABASE_NAME']
     full_string = f'postgresql://{user}:{password}@{hostname}/{database_name}'
-    print(full_string)
     engine = sqlalchemy.create_engine(full_string)
 
     def __init__(self):
         self.connection = self.engine.connect()
-        print("DB Instance created")
 
-    def get_links(self):
+    def get_fetched_links(self):
         fetchQuery = self.connection.execute(f"SELECT href FROM news")
         return list(map(lambda x: x.href, fetchQuery.fetchall()))
 
-    def save(self, news):
-        self.save_news(news)
-        self.save_paragraphs(news)
+    def save_all_news(self, news):
+        for el in news:
+            self.save_news(el)
+            self.save_paragraphs(el)
 
     def save_news(self, news):
         self.connection.execute(sqlalchemy.text(f"""INSERT INTO news(id, title, href, website_name, website_photo, created_at) 
@@ -37,10 +35,3 @@ class Database():
         for paragraph in news.paragraphs:
             self.connection.execute(sqlalchemy.text(f"""INSERT INTO paragraphs(id, text, news_id, created_at)
                                         VALUES('{str(uuid.uuid4())}', '{paragraph}', '{news.id}', '{datetime.now()}')"""))
-
-
-if __name__ == "__main__":
-    db = Database()
-    # db.save(News('título de teste', 'https://aefaef.com.br',
-    #              ['paragrafo 1', 'paragrafo 2', 'paragrafo 3']))
-    db.get_links()

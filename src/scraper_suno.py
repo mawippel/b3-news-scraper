@@ -4,38 +4,40 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from model.news import News
 from database import Database
+import locale
+from utils.paragraph_utils import ParagraphUtils
+from utils.anchor_utils import AnchorUtils
+from utils.log_utils import LogUtils
 
-NEWS_PATH = 'https://www.sunoresearch.com.br/noticias/mercado/'
+db = None
 
 
 def scrap():
-    print('Starting Suno Scraper...')
+    global db
     db = Database()
+    locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+    _scrap()
 
+
+def _scrap():
+    LogUtils.start('Suno')
     news = []
-    paragraphs = []
-
-    fetched_links = db.get_links()
-
-    hrefs, titles = get_news(fetched_links)
-
-    print(hrefs, titles)
-    for i in range(0, len(hrefs)):
-        publish_date = get_news_content(hrefs[i], paragraphs)
-        news.append(News(titles[i], hrefs[i], paragraphs, 'Suno Notícias',
+    hrefs, titles = get_news_ignoring_fetched_links(db.get_fetched_links())
+    for i in range(len(hrefs)):
+        href = hrefs[i]
+        title = titles[i]
+        paragraphs, publish_date = get_news_content_by_href(href)
+        news.append(News(title, href, paragraphs, 'Suno Notícias',
                          'https://www.sunoresearch.com.br/wp-content/uploads/2019/12/suno-research.jpg', publish_date))
-        paragraphs = []
-
-    for el in news:
-        db.save(el)
-    print('All news were saved.')
+    db.save_all_news(news)
+    LogUtils.end('Suno', hrefs)
 
 
-def get_news(fetched_links):
+def get_news_ignoring_fetched_links(fetched_links):
     hrefs = []
     titles = []
 
-    page = requests.get(NEWS_PATH)
+    page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
     soup = BeautifulSoup(page.text, 'html.parser')
 
     htmlTitles = soup.find_all(class_='list-item')
@@ -43,24 +45,25 @@ def get_news(fetched_links):
         title = item.find('h3', {'class': 'post__title'})
         txt_href = title.find('a')['href']
         txt_title = title.find('a').text
-        if is_not_fetched(fetched_links, txt_href):
+        if AnchorUtils.is_not_fetched(txt_href, fetched_links):
             hrefs.append(txt_href)
             titles.append(txt_title)
     return hrefs, titles
 
 
-def get_news_content(news_path, paragraphs):
+def get_news_content_by_href(href):
     """ Returns the paragraphs of the article """
-    page = requests.get(news_path)
+    paragraphs = []
+    page = requests.get(href)
     soup = BeautifulSoup(page.text, 'html.parser')
     fullContent = soup.find('div', itemprop="articleBody")
     # Get the texts that are outside paragraphs
     article_paragraphs = fullContent.find_all('p', recursive=False)
     for paragraph in article_paragraphs:
         text = paragraph.getText()
-        if should_add(text):
-            text = sanitize_paragraph(text)
-            paragraphs.extend(split_paragraph(text))
+        if ParagraphUtils.is_valid(text):
+            text = ParagraphUtils.sanitize(text)
+            paragraphs.extend(ParagraphUtils.split(text))
 
     # get publish time
     articleDate = soup.find(class_='time')
@@ -70,38 +73,7 @@ def get_news_content(news_path, paragraphs):
     datetime_object += timedelta(hours=3)
     tz = pytz.timezone('America/Sao_Paulo')
     datetime_object = datetime_object.replace(tzinfo=pytz.utc).astimezone(tz)
-    return datetime_object
-
-
-def split_paragraph(text):
-    texts = text.split('.')
-    return [x for x in texts if x]
-
-
-def is_not_fetched(fetched_links, href):
-    return href not in fetched_links
-
-
-def sanitize_paragraph(paragraph):
-    paragraph = paragraph.replace(u'\xa0', u' ')
-    paragraph = paragraph.strip()
-    return paragraph
-
-
-def should_add(text):
-    return is_not_tag(text) and is_not_script_tag(text) and not is_useless_paragraph(text)
-
-
-def is_not_script_tag(text):
-    return text and "<script>" not in text
-
-
-def is_useless_paragraph(paragraph):
-    return paragraph.strip() == '' or paragraph.lower() == 'adiciona categoria materia'
-
-
-def is_not_tag(text):
-    return text and text[:1] != '<'
+    return paragraphs, datetime_object
 
 
 if __name__ == "__main__":
