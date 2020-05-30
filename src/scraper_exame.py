@@ -37,13 +37,12 @@ def _scrap():
 def get_news_ignoring_fetched_links(fetched_links):
     hrefs = []
     titles = []
-    page = requests.get('https://exame.abril.com.br/noticias-sobre/acoes/')
-    soup = BeautifulSoup(page.text, 'html.parser')
 
+    soup = read_page_html()
     htmlTitles = soup.findAll('li', {"id": re.compile("^post-")})
     for item in htmlTitles:
-        txt_href = item.find('a')['href']
-        txt_title = item.find('a').get('title')
+        txt_href = get_link(item)
+        txt_title = get_title(item)
         if AnchorUtils.is_not_fetched(txt_href, fetched_links):
             if AnchorUtils.is_valid(txt_href):
                 hrefs.append(txt_href)
@@ -73,6 +72,25 @@ def get_news_content_by_href(href):
             text = ParagraphUtils.sanitize(text)
             paragraphs.extend(ParagraphUtils.split(text))
 
+    tzbr = get_metadata(soup)
+
+    return paragraphs, tzbr
+
+
+def get_link(item):
+    return item.find('a')['href']
+
+
+def get_title(item):
+    return item.find('a').get('title')
+
+
+def read_page_html():
+    page = requests.get('https://exame.abril.com.br/noticias-sobre/acoes/')
+    return BeautifulSoup(page.text, 'html.parser')
+
+
+def get_metadata(soup):
     # Get publish date
     articleDate = soup.find(class_='article-date')
     date = articleDate.find('span').getText()
@@ -86,7 +104,7 @@ def get_news_content_by_href(href):
             sanitized_date, '%d %b %Y às %Hh%M')
     tzbr = pytz.timezone(
         'America/Sao_Paulo').localize(datetime_object).astimezone(pytz.UTC)
-    return paragraphs, tzbr
+    return tzbr
 
 
 def sanitize_date(date):

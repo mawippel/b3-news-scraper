@@ -37,13 +37,12 @@ def get_news_ignoring_fetched_links(fetched_links):
     """ Retrieves the latest news and parse its title/href """
     hrefs = []
     titles = []
-    page = requests.get('https://www.infomoney.com.br/mercados')
-    soup = BeautifulSoup(page.text, 'html.parser')
+    soup = read_page_html()
 
     htmlTitles = soup.findAll('div', {"id": re.compile("^post-")})
     for item in htmlTitles:
-        txt_href = item.find('a')['href']
-        txt_title = item.find('a').get('title')
+        txt_href = get_title(item)
+        txt_title = get_link(item)
         if AnchorUtils.is_not_fetched(txt_href, fetched_links):
             hrefs.append(txt_href)
             titles.append(txt_title)
@@ -65,13 +64,31 @@ def get_news_content_by_href(href):
                 text = ParagraphUtils.sanitize(text)
                 paragraphs.extend(ParagraphUtils.split(text))
 
+    datetime_object = get_metadata(soup)
+
+    return paragraphs, datetime_object
+
+
+def get_link(item):
+    return item.find('a')['href']
+
+
+def get_title(item):
+    return item.find('a').get('title')
+
+
+def read_page_html():
+    page = requests.get('https://www.infomoney.com.br/mercados')
+    return BeautifulSoup(page.text, 'html.parser')
+
+
+def get_metadata(soup):
     # get publish time
     articleDate = soup.find(class_='entry-date')
     strippedDate = articleDate.get('datetime').strip()
     datetime_object = datetime.strptime(
         strippedDate, '%Y-%m-%dT%H:%M:%S%z')
-
-    return paragraphs, datetime_object
+    return datetime_object
 
 
 if __name__ == "__main__":

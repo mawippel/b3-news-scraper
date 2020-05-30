@@ -37,14 +37,13 @@ def get_news_ignoring_fetched_links(fetched_links):
     hrefs = []
     titles = []
 
-    page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
-    soup = BeautifulSoup(page.text, 'html.parser')
+    soup = read_page_html()
 
     htmlTitles = soup.find_all(class_='list-item')
     for item in htmlTitles:
         title = item.find('h3', {'class': 'post__title'})
-        txt_href = title.find('a')['href']
-        txt_title = title.find('a').text
+        txt_href = get_link(title)
+        txt_title = get_title(title)
         if AnchorUtils.is_not_fetched(txt_href, fetched_links):
             hrefs.append(txt_href)
             titles.append(txt_title)
@@ -66,6 +65,25 @@ def get_news_content_by_href(href):
             paragraphs.extend(ParagraphUtils.split(text))
 
     # get publish time
+    datetime_object = get_metadata(soup)
+
+    return paragraphs, datetime_object
+
+
+def get_title(title):
+    return title.find('a').text
+
+
+def get_link(title):
+    return title.find('a')['href']
+
+
+def read_page_html():
+    page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
+    return BeautifulSoup(page.text, 'html.parser')
+
+
+def get_metadata(soup):
     articleDate = soup.find(class_='time')
     strippedDate = articleDate.get('datetime').strip()
     datetime_object = datetime.strptime(
@@ -73,7 +91,7 @@ def get_news_content_by_href(href):
     datetime_object += timedelta(hours=3)
     tz = pytz.timezone('America/Sao_Paulo')
     datetime_object = datetime_object.replace(tzinfo=pytz.utc).astimezone(tz)
-    return paragraphs, datetime_object
+    return datetime_object
 
 
 if __name__ == "__main__":
