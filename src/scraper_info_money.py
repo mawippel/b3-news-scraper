@@ -41,8 +41,8 @@ def get_news_ignoring_fetched_links(fetched_links):
 
     htmlTitles = soup.findAll('div', {"id": re.compile("^post-")})
     for item in htmlTitles:
-        txt_href = get_title(item)
-        txt_title = get_link(item)
+        txt_href = get_link(item)
+        txt_title = get_title(item)
         if AnchorUtils.is_not_fetched(txt_href, fetched_links):
             hrefs.append(txt_href)
             titles.append(txt_title)

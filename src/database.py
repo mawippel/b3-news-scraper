@@ -3,17 +3,25 @@ from model.news import News
 import yaml
 import uuid
 from datetime import datetime
+import pyodbc
+import urllib
 
 config = yaml.safe_load(open("config.yml"))
 
 
 class Database():
-    user = config['DB_USER']
-    password = config['DB_PASS']
-    hostname = config['DB_HOST']
-    database_name = config['DATABASE_NAME']
-    full_string = f'postgresql://{user}:{password}@{hostname}/{database_name}'
-    engine = sqlalchemy.create_engine(full_string)
+    server = "db-b3-news.database.windows.net"
+    database = "db-b3-news"
+    username = "mawippel"
+    password = "Ivangoezeli14"
+
+    driver = '{SQL Server}'
+
+    odbc_str = 'DRIVER='+driver+';SERVER='+server+';PORT=1433;UID=' + \
+        username+';DATABASE=' + database + ';PWD=' + password
+    connect_str = 'mssql+pyodbc:///?odbc_connect=' + \
+        urllib.parse.quote_plus(odbc_str)
+    engine = sqlalchemy.create_engine(connect_str)
 
     def __init__(self):
         self.connection = self.engine.connect()
@@ -34,4 +42,4 @@ class Database():
     def save_paragraphs(self, news):
         for paragraph in news.paragraphs:
             self.connection.execute(sqlalchemy.text(f"""INSERT INTO paragraphs(id, text, news_id, created_at)
-                                        VALUES('{str(uuid.uuid4())}', '{paragraph}', '{news.id}', '{datetime.now()}')"""))
+                                        VALUES('{str(uuid.uuid4())}', :paragraph, '{news.id}', '{datetime.now()}')"""), paragraph = paragraph)

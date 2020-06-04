@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from model.news import News
 from database import Database
 import locale
+from urllib.request import Request, urlopen
 from utils.paragraph_utils import ParagraphUtils
 from utils.anchor_utils import AnchorUtils
 from utils.log_utils import LogUtils
@@ -39,7 +40,7 @@ def get_news_ignoring_fetched_links(fetched_links):
 
     soup = read_page_html()
 
-    htmlTitles = soup.find_all(class_='list-item')
+    htmlTitles = soup.find_all('div', class_='list-item')
     for item in htmlTitles:
         title = item.find('h3', {'class': 'post__title'})
         txt_href = get_link(title)
@@ -53,8 +54,12 @@ def get_news_ignoring_fetched_links(fetched_links):
 def get_news_content_by_href(href):
     """ Returns the paragraphs of the article """
     paragraphs = []
-    page = requests.get(href)
-    soup = BeautifulSoup(page.text, 'html.parser')
+    
+    hdr = {'User-Agent': 'Mozilla/5.0'}
+    req = Request(href, headers=hdr)
+    page = urlopen(req).read()
+    soup = BeautifulSoup(page, 'html.parser')
+    
     fullContent = soup.find('div', itemprop="articleBody")
     # Get the texts that are outside paragraphs
     article_paragraphs = fullContent.find_all('p', recursive=False)
@@ -79,8 +84,13 @@ def get_link(title):
 
 
 def read_page_html():
-    page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
-    return BeautifulSoup(page.text, 'html.parser')
+    site = 'https://www.sunoresearch.com.br/noticias/mercado/'
+    hdr = {'User-Agent': 'Mozilla/5.0'}
+    req = Request(site, headers=hdr)
+    page = urlopen(req).read()
+    return BeautifulSoup(page, 'html.parser')
+    # page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
+    # return BeautifulSoup(page.text, 'html.parser')
 
 
 def get_metadata(soup):

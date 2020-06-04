@@ -18,6 +18,8 @@ schedule = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 pytz = "*"
+pyodbc = "*"
+pymssql = "*"
 
 [requires]
 python_version = "3.7"
