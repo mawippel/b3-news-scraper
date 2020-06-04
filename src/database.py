@@ -10,10 +10,10 @@ config = yaml.safe_load(open("config.yml"))
 
 
 class Database():
-    server = "db-b3-news.database.windows.net"
-    database = "db-b3-news"
-    username = "mawippel"
-    password = "Ivangoezeli14"
+    server = config['DB_HOST']
+    database = config['DATABASE_NAME']
+    username = config['DB_USER']
+    password = config['DB_PASS']
 
     driver = '{SQL Server}'
 
@@ -42,4 +42,4 @@ class Database():
     def save_paragraphs(self, news):
         for paragraph in news.paragraphs:
             self.connection.execute(sqlalchemy.text(f"""INSERT INTO paragraphs(id, text, news_id, created_at)
-                                        VALUES('{str(uuid.uuid4())}', :paragraph, '{news.id}', '{datetime.now()}')"""), paragraph = paragraph)
+                                        VALUES('{str(uuid.uuid4())}', :paragraph, '{news.id}', '{datetime.now()}')"""), paragraph=paragraph)

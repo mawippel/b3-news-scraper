@@ -99,7 +99,7 @@ def get_metadata(soup):
     try:
         datetime_object = datetime.strptime(
             sanitized_date, '%d/%m/%Y às %Hh%M')
-    except Exception as e:
+    except Exception as _:
         datetime_object = datetime.strptime(
             sanitized_date, '%d %b %Y às %Hh%M')
     tzbr = pytz.timezone(
