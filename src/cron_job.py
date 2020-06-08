@@ -6,7 +6,7 @@ import scraper_info_money
 
 
 def main():
-    schedule.every(30).minutes.do(scrap)
+    schedule.every(15).minutes.do(scrap)
     first_time = True
     while True:
         if first_time:
