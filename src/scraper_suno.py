@@ -89,8 +89,6 @@ def read_page_html():
     req = Request(site, headers=hdr)
     page = urlopen(req).read()
     return BeautifulSoup(page, 'html.parser')
-    # page = requests.get('https://www.sunoresearch.com.br/noticias/mercado/')
-    # return BeautifulSoup(page.text, 'html.parser')
 
 
 def get_metadata(soup):
